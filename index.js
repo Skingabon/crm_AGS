@@ -1,20 +1,19 @@
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const app = express();
+const clientId = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
+const subdomain = process.env.SUBDOMAIN;
+const redirectUri = process.env.REDIRECT_URI;
 
-const CONFIG = {
-    CLIENT_ID: 'ваш_client_id', // Берётся из настроек интеграции
-    CLIENT_SECRET: 'ваш_client_secret',
-    SUBDOMAIN: 'ваш_поддомен',
-    REDIRECT_URI: 'http://localhost:3000/callback' // Укажите этот же URL в настройках интеграции
-};
 
 // Шаг 1: Перенаправляем пользователя в amoCRM
 app.get('/auth', (req, res) => {
     res.redirect(
-        `https://${CONFIG.SUBDOMAIN}.amocrm.ru/oauth2/authorize?` +
-        `client_id=${CONFIG.CLIENT_ID}&` +
-        `redirect_uri=${encodeURIComponent(CONFIG.REDIRECT_URI)}&` +
+        `https://${subdomain}.amocrm.ru/oauth2/authorize?` +
+        `client_id=${clientId}&` +
+        `redirect_uri=${encodeURIComponent(redirectUri)}&` +
         `response_type=code`
     );
 });
@@ -26,11 +25,11 @@ app.get('/callback', async (req, res) => {
     const response = await axios.post(
         `https://${CONFIG.SUBDOMAIN}.amocrm.ru/oauth2/access_token`,
         {
-            client_id: CONFIG.CLIENT_ID,
-            client_secret: CONFIG.CLIENT_SECRET,
+            client_id: clientId,
+            client_secret: clientSecret,
             code,
             grant_type: 'authorization_code',
-            redirect_uri: CONFIG.REDIRECT_URI
+            redirect_uri: redirectUri
         }
     );
 
